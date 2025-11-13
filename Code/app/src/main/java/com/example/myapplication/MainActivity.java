@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 package com.example.eventdetails_java;
 
 import android.os.Bundle;
@@ -14,6 +15,8 @@ public class MainActivity extends AppCompatActivity {
 
     private MenuItem toggleMenuItem;
 =======
+=======
+>>>>>>> parent of 11df180 (home page)
 package com.example.myapplication;
 
 import android.os.Bundle;
@@ -26,6 +29,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView helloText;
     private Button clickButton;
+<<<<<<< HEAD
+>>>>>>> parent of 11df180 (home page)
+=======
 >>>>>>> parent of 11df180 (home page)
 
     @Override
@@ -33,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+<<<<<<< HEAD
 <<<<<<< HEAD
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar); // make menu visible when using NoActionBar theme
@@ -94,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
 =======
+=======
+>>>>>>> parent of 11df180 (home page)
         helloText = findViewById(R.id.helloText);
         clickButton = findViewById(R.id.clickButton);
 
@@ -103,6 +112,9 @@ public class MainActivity extends AppCompatActivity {
                 helloText.setText("Button has pressed by Jose !");
             }
         });
+<<<<<<< HEAD
+>>>>>>> parent of 11df180 (home page)
+=======
 >>>>>>> parent of 11df180 (home page)
     }
 }
