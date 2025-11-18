@@ -1,6 +1,10 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 package com.example.eventdetails_java;
+=======
+package com.example.myapplication;
+>>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
 
 import android.os.Bundle;
 import android.view.Menu;
@@ -14,6 +18,7 @@ import androidx.fragment.app.Fragment;
 public class MainActivity extends AppCompatActivity {
 
     private MenuItem toggleMenuItem;
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> parent of 11df180 (home page)
@@ -33,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
 >>>>>>> parent of 11df180 (home page)
 =======
 >>>>>>> parent of 11df180 (home page)
+=======
+>>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +48,9 @@ public class MainActivity extends AppCompatActivity {
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar); // make menu visible when using NoActionBar theme
 
@@ -100,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+<<<<<<< HEAD
 =======
 =======
 >>>>>>> parent of 11df180 (home page)
@@ -116,5 +127,7 @@ public class MainActivity extends AppCompatActivity {
 >>>>>>> parent of 11df180 (home page)
 =======
 >>>>>>> parent of 11df180 (home page)
+=======
+>>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
     }
 }

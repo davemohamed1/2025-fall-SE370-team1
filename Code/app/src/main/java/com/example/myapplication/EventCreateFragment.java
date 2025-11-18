@@ -1,5 +1,9 @@
 // File: `app/src/main/java/com/example/eventdetails_java/EventCreateFragment.java`
+<<<<<<< HEAD
 package com.example.eventdetails_java;
+=======
+package com.example.myapplication;
+>>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
