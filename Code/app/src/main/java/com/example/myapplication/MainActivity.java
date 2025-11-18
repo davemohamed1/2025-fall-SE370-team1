@@ -1,11 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-package com.example.eventdetails_java;
-=======
 package com.example.myapplication;
->>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
-
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,39 +11,16 @@ import androidx.fragment.app.Fragment;
 public class MainActivity extends AppCompatActivity {
 
     private MenuItem toggleMenuItem;
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 11df180 (home page)
-package com.example.myapplication;
-
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
     private TextView helloText;
     private Button clickButton;
-<<<<<<< HEAD
->>>>>>> parent of 11df180 (home page)
-=======
->>>>>>> parent of 11df180 (home page)
-=======
->>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar); // make menu visible when using NoActionBar theme
 
@@ -110,10 +80,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-<<<<<<< HEAD
-=======
-=======
->>>>>>> parent of 11df180 (home page)
         helloText = findViewById(R.id.helloText);
         clickButton = findViewById(R.id.clickButton);
 
@@ -123,11 +89,6 @@ public class MainActivity extends AppCompatActivity {
                 helloText.setText("Button has pressed by Jose !");
             }
         });
-<<<<<<< HEAD
->>>>>>> parent of 11df180 (home page)
-=======
->>>>>>> parent of 11df180 (home page)
-=======
->>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
     }
+}
 }

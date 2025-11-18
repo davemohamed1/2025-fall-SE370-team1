@@ -1,10 +1,4 @@
-// java
-<<<<<<< HEAD
-package com.example.eventdetails_java;
-=======
 package com.example.myapplication;
->>>>>>> b37682dbe98402d3f87e8dfbe534ceefe9f7dfc3
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
