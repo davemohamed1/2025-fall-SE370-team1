@@ -1,4 +1,3 @@
-// java
 package com.example.myapplication;
 
 import java.util.ArrayList;

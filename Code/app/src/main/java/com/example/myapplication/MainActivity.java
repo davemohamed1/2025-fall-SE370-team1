@@ -1,5 +1,4 @@
 package com.example.myapplication;
-
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,11 +12,15 @@ public class MainActivity extends AppCompatActivity {
 
     private MenuItem toggleMenuItem;
 
+public class MainActivity extends AppCompatActivity {
+
+    private TextView helloText;
+    private Button clickButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar); // make menu visible when using NoActionBar theme
 
@@ -77,5 +80,15 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+        helloText = findViewById(R.id.helloText);
+        clickButton = findViewById(R.id.clickButton);
+
+        clickButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                helloText.setText("Button has pressed by Jose !");
+            }
+        });
     }
+}
 }

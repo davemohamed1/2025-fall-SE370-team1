@@ -1,6 +1,5 @@
-// File: `app/src/main/java/com/example/eventdetails_java/EventListFragment.java`
-package com.example.myapplication;
 
+package com.example.myapplication;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
