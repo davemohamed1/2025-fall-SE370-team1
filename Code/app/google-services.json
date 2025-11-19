@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "900686819779",
+    "project_id": "cougarclubscsusm",
+    "storage_bucket": "cougarclubscsusm.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900686819779:android:dde0673b9c65117e5ccd76",
+        "android_client_info": {
+          "package_name": "com.example.myapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAr89nZxfZdi-TUvTlpMV8aim28R5WRhNk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
