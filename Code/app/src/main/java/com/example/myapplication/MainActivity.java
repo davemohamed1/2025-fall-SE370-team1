@@ -1,9 +1,10 @@
 package com.example.myapplication;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
+import android.view.View;import android.widget.Button;
+import android.widget.TextView; // Added missing import
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -11,9 +12,7 @@ import androidx.fragment.app.Fragment;
 public class MainActivity extends AppCompatActivity {
 
     private MenuItem toggleMenuItem;
-
-public class MainActivity extends AppCompatActivity {
-
+    // Consolidated variables from the second class definition
     private TextView helloText;
     private Button clickButton;
 
@@ -30,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
 
+        // --- Logic from the first block ---
         Button createBtn = findViewById(R.id.btnCreate);
         Button listBtn = findViewById(R.id.btnList);
 
@@ -51,13 +51,30 @@ public class MainActivity extends AppCompatActivity {
                         .commit();
             }
         });
+
+        // --- Logic from the second (merged) block ---
+        helloText = findViewById(R.id.helloText);
+        clickButton = findViewById(R.id.clickButton);
+
+        // Note: You should ensure your layout XML actually has IDs "helloText" and "clickButton"
+        // alongside "btnCreate" and "btnList", otherwise this will cause a crash at runtime.
+        if (clickButton != null) {
+            clickButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    helloText.setText("Button has pressed by Jose !");
+                }
+            });
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         toggleMenuItem = menu.findItem(R.id.action_toggle_layout);
-        toggleMenuItem.setTitle("Calendar");
+        if (toggleMenuItem != null) {
+            toggleMenuItem.setTitle("Calendar");
+        }
         return true;
     }
 
@@ -80,15 +97,5 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-        helloText = findViewById(R.id.helloText);
-        clickButton = findViewById(R.id.clickButton);
-
-        clickButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                helloText.setText("Button has pressed by Jose !");
-            }
-        });
     }
-}
 }
