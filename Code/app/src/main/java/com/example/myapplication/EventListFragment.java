@@ -1,4 +1,3 @@
-
 package com.example.myapplication;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,9 +19,7 @@ import java.util.Locale;
 
 public class EventListFragment extends Fragment {
 
-    public EventListFragment() {
-        // Required empty public constructor
-    }
+    public EventListFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,7 +62,7 @@ public class EventListFragment extends Fragment {
                     if (d1 == null || d2 == null) {
                         return dt1.compareTo(dt2);
                     }
-                    return d1.compareTo(d2); // ascending: earliest first
+                    return d1.compareTo(d2);
                 } catch (ParseException ex) {
                     return dt1.compareTo(dt2);
                 }
@@ -75,8 +72,9 @@ public class EventListFragment extends Fragment {
         for (int i = 0; i < events.size(); i++) {
             final int index = i;
             Event e = events.get(i);
+            String clubLine = e.getClubName() != null ? e.getClubName() + "\n" : "";
             Button item = new Button(requireContext());
-            item.setText(e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation());
+            item.setText(clubLine + e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation());
             item.setAllCaps(false);
             item.setOnClickListener(new View.OnClickListener() {
                 @Override

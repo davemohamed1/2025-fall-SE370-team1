@@ -25,8 +25,7 @@ public class CalendarFragment extends Fragment {
     private GridView gridView;
     private Calendar monthCalendar;
 
-    public CalendarFragment() {
-    }
+    public CalendarFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -41,78 +40,66 @@ public class CalendarFragment extends Fragment {
         monthCalendar = Calendar.getInstance();
         monthCalendar.set(Calendar.DAY_OF_MONTH, 1);
 
-        btnPrev.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                monthCalendar.add(Calendar.MONTH, -1);
-                refreshCalendar();
-            }
+        btnPrev.setOnClickListener(v -> {
+            monthCalendar.add(Calendar.MONTH, -1);
+            refreshCalendar();
         });
 
-        btnNext.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                monthCalendar.add(Calendar.MONTH, 1);
-                refreshCalendar();
-            }
+        btnNext.setOnClickListener(v -> {
+            monthCalendar.add(Calendar.MONTH, 1);
+            refreshCalendar();
         });
 
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View cellView, int position, long id) {
-                Object item = gridView.getAdapter().getItem(position);
-                if (item == null) return;
-                String key = item.toString(); // yyyy-MM-dd
+        gridView.setOnItemClickListener((parent, cellView, position, id) -> {
+            Object item = gridView.getAdapter().getItem(position);
+            if (item == null) return;
+            String key = item.toString(); // yyyy-MM-dd
 
-                // Try repository helper first
-                List<Event> found = EventRepository.getAllEventsForDate(key);
+            List<Event> found = EventRepository.getAllEventsForDate(key);
 
-                // Ensure a final list variable for use in the lambda
-                final List<Event> events;
-                if (found != null && !found.isEmpty()) {
-                    events = found;
-                } else {
-                    // build list locally if repo returned empty
-                    events = new ArrayList<>();
-                    List<Event> all = EventRepository.getAllEvents();
-                    for (Event e : all) {
-                        if (key.equals(e.getDate())) events.add(e);
-                    }
+            final List<Event> events;
+            if (found != null && !found.isEmpty()) {
+                events = found;
+            } else {
+                events = new ArrayList<>();
+                List<Event> all = EventRepository.getAllEvents();
+                for (Event e : all) {
+                    if (key.equals(e.getDate())) events.add(e);
                 }
+            }
 
-                if (events.isEmpty()) {
-                    new AlertDialog.Builder(requireContext())
-                            .setTitle(key)
-                            .setMessage("No events")
-                            .setPositiveButton("OK", null)
-                            .show();
-                    return;
-                }
-
-                CharSequence[] items = new CharSequence[events.size()];
-                for (int i = 0; i < events.size(); i++) {
-                    Event e = events.get(i);
-                    items[i] = e.getName() + " — " + e.getTime() + "\n" + e.getLocation();
-                }
-
+            if (events.isEmpty()) {
                 new AlertDialog.Builder(requireContext())
                         .setTitle(key)
-                        .setItems(items, (dialog, which) -> {
-                            // open editor for selected event
-                            Event chosen = events.get(which);
-                            List<Event> all = EventRepository.getAllEvents();
-                            int index = all.indexOf(chosen);
-                            if (index >= 0) {
-                                EventCreateFragment frag = EventCreateFragment.newInstance(index);
-                                getParentFragmentManager().beginTransaction()
-                                        .replace(R.id.fragment_container, frag)
-                                        .addToBackStack(null)
-                                        .commit();
-                            }
-                        })
-                        .setNegativeButton("Close", null)
+                        .setMessage("No events")
+                        .setPositiveButton("OK", null)
                         .show();
+                return;
             }
+
+            CharSequence[] items = new CharSequence[events.size()];
+            for (int i = 0; i < events.size(); i++) {
+                Event e = events.get(i);
+                String clubLine = e.getClubName() != null ? e.getClubName() + "\n" : "";
+                items[i] = clubLine + e.getName() + " — " + e.getTime() + "\n" + e.getLocation();
+            }
+
+            new AlertDialog.Builder(requireContext())
+                    .setTitle(key)
+                    .setItems(items, (dialog, which) -> {
+                        Event chosen = events.get(which);
+                        List<Event> all = EventRepository.getAllEvents();
+                        int index = all.indexOf(chosen);
+                        if (index >= 0) {
+                            EventCreateFragment frag = EventCreateFragment.newInstance(index);
+                            getParentFragmentManager().beginTransaction()
+                                    .replace(R.id.fragment_container, frag)
+                                    .addToBackStack(null)
+                                    .commit();
+                        }
+                    })
+                    .setNegativeButton("Close", null)
+                    .show();
         });
 
         refreshCalendar();
@@ -120,11 +107,10 @@ public class CalendarFragment extends Fragment {
     }
 
     private void refreshCalendar() {
-        // Build map of date string -> list of events
         Map<String, List<Event>> eventsMap = new HashMap<>();
         List<Event> all = EventRepository.getAllEvents();
         for (Event e : all) {
-            String dateStr = e.getDate(); // expected yyyy-MM-dd
+            String dateStr = e.getDate();
             if (dateStr == null || dateStr.isEmpty()) continue;
             List<Event> list = eventsMap.get(dateStr);
             if (list == null) {

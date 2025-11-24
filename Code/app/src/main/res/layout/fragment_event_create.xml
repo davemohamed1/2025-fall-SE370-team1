@@ -9,6 +9,27 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <!-- Club selector -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+
+            <Spinner
+                android:id="@+id/clubSpinner"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btn_create_club"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create Club"
+                android:layout_marginStart="8dp"/>
+        </LinearLayout>
+
         <EditText
             android:id="@+id/eventName"
             android:layout_width="match_parent"
