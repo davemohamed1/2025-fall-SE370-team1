@@ -2,13 +2,14 @@ package com.example.myapplication;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-
+import android.graphics.Paint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -53,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 signIn(email, password);
             }
+
         });
 
         // 3. Add the listener for the Create Account action
@@ -72,6 +74,38 @@ public class LoginActivity extends AppCompatActivity {
                     createAccount(email, password);
                 }
             });
+            // 1. Find the text view
+            TextView forgotPasswordLink = findViewById(R.id.forgot_password_link);
+
+// 2. (Optional) Add underline to make it look like a real web link
+            forgotPasswordLink.setPaintFlags(forgotPasswordLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+// 3. Set the click listener to trigger the reset logic
+            forgotPasswordLink.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String email = usernameEditText.getText().toString();
+
+                    if (email.isEmpty()) {
+                        Toast.makeText(LoginActivity.this, "Please enter your email address above first.", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    // Trigger Firebase reset email
+                    mAuth.sendPasswordResetEmail(email)
+                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(LoginActivity.this, "Reset link sent to your email.", Toast.LENGTH_LONG).show();
+                                    } else {
+                                        Toast.makeText(LoginActivity.this, "Error sending reset email.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                }
+            });
+
         }
     }
 
