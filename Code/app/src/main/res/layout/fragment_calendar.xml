@@ -15,6 +15,7 @@
             android:id="@+id/btnPrev"
             android:layout_width="48dp"
             android:layout_height="wrap_content"
+            android:backgroundTint="#2196F3"
             android:text="&lt;" />
 
         <TextView
@@ -31,6 +32,7 @@
             android:id="@+id/btnNext"
             android:layout_width="48dp"
             android:layout_height="wrap_content"
+            android:backgroundTint="#2196F3"
             android:text="&gt;" />
     </LinearLayout>
 
