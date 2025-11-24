@@ -15,7 +15,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="#2196F3"
             android:text="Calendar" />
 
         <Button
@@ -23,7 +22,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:backgroundTint="#2196F3"
             android:text="List" />
     </LinearLayout>
 
