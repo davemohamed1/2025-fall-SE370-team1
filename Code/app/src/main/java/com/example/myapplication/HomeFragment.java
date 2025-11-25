@@ -1,3 +1,4 @@
+// java
 package com.example.myapplication;
 
 import android.content.Intent;
@@ -17,27 +18,44 @@ public class HomeFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        // 1. Inflate the layout and store it in a 'view' variable
+        // Inflate a dedicated fragment layout (no duplicated bottom menu)
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        // 2. Find the button using the 'view' variable
-        Button signOutButton = view.findViewById(R.id.btn_sign_out);
-
-        // 3. Set the click listener
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Sign out of Firebase
-                FirebaseAuth.getInstance().signOut();
-
-                // Navigate back to LoginActivity
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                // This flag clears the back stack so the user can't press "Back" to return to the home screen
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            }
+        // Attach sign-out action to the activity's button (button lives in activity_main)
+        Button signOutButton = requireActivity().findViewById(R.id.btn_sign_out);
+        signOutButton.setOnClickListener(v -> {
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // When this fragment is visible, replace the home button with sign-out
+        View activityView = requireActivity().findViewById(android.R.id.content);
+        Button btnHome = activityView.findViewById(R.id.btn_home);
+        Button btnSignOut = activityView.findViewById(R.id.btn_sign_out);
+        if (btnHome != null && btnSignOut != null) {
+            btnHome.setVisibility(View.GONE);
+            btnSignOut.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Restore buttons when leaving this fragment
+        View activityView = requireActivity().findViewById(android.R.id.content);
+        Button btnHome = activityView.findViewById(R.id.btn_home);
+        Button btnSignOut = activityView.findViewById(R.id.btn_sign_out);
+        if (btnHome != null && btnSignOut != null) {
+            btnHome.setVisibility(View.VISIBLE);
+            btnSignOut.setVisibility(View.GONE);
+        }
     }
 }
