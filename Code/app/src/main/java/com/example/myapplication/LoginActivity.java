@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.graphics.Paint;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,10 +23,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
     private FirebaseAuth mAuth;
+
     private EditText usernameEditText;
     private EditText passwordEditText;
     private Button loginButton;
     private Button registerButton;
+    private TextView forgotPasswordLink;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,14 +37,17 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        // UI elements
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login);
-
-        // 2. Find the register button
-        // Make sure you add a button with android:id="@+id/register_button" in your activity_login.xml
         registerButton = findViewById(R.id.register_button);
+        forgotPasswordLink = findViewById(R.id.forgot_password_link);
 
+        // Underline the forgot password link
+        forgotPasswordLink.setPaintFlags(forgotPasswordLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
+
+        // --- LOGIN BUTTON ---
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,10 +61,9 @@ public class LoginActivity extends AppCompatActivity {
 
                 signIn(email, password);
             }
-
         });
 
-        // 3. Add the listener for the Create Account action
+        // --- REGISTER BUTTON ---
         if (registerButton != null) {
             registerButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -70,51 +76,42 @@ public class LoginActivity extends AppCompatActivity {
                         return;
                     }
 
-                    // Call the new function here
                     createAccount(email, password);
                 }
             });
-            // 1. Find the text view
-            TextView forgotPasswordLink = findViewById(R.id.forgot_password_link);
-
-// 2. (Optional) Add underline to make it look like a real web link
-            forgotPasswordLink.setPaintFlags(forgotPasswordLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-
-// 3. Set the click listener to trigger the reset logic
-            forgotPasswordLink.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String email = usernameEditText.getText().toString();
-
-                    if (email.isEmpty()) {
-                        Toast.makeText(LoginActivity.this, "Please enter your email address above first.", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    // Trigger Firebase reset email
-                    mAuth.sendPasswordResetEmail(email)
-                            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        Toast.makeText(LoginActivity.this, "Reset link sent to your email.", Toast.LENGTH_LONG).show();
-                                    } else {
-                                        Toast.makeText(LoginActivity.this, "Error sending reset email.", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
-                }
-            });
-
         }
+
+        // --- FORGOT PASSWORD LINK ---
+        forgotPasswordLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String email = usernameEditText.getText().toString();
+
+                if (email.isEmpty()) {
+                    Toast.makeText(LoginActivity.this, "Please enter your email address above first.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                mAuth.sendPasswordResetEmail(email)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Toast.makeText(LoginActivity.this, "Reset link sent to your email.", Toast.LENGTH_LONG).show();
+                                } else {
+                                    Toast.makeText(LoginActivity.this, "Error sending reset email.", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+            }
+        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             updateUI(currentUser);
         }
     }
@@ -125,21 +122,15 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            updateUI(mAuth.getCurrentUser());
                         } else {
-                            // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Registration failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
+                            Toast.makeText(LoginActivity.this, "Registration failed.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
-
 
     private void signIn(String email, String password) {
         mAuth.signInWithEmailAndPassword(email, password)
@@ -147,16 +138,11 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
+                            updateUI(mAuth.getCurrentUser());
                         } else {
-                            // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
+                            Toast.makeText(LoginActivity.this, "Authentication failed.", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
