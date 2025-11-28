@@ -26,9 +26,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private EditText passwordEditText;
-    private Button loginButton;
-    private Button registerButton;
-    private TextView forgotPasswordLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,9 +37,9 @@ public class LoginActivity extends AppCompatActivity {
         // UI elements
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
-        loginButton = findViewById(R.id.login);
-        registerButton = findViewById(R.id.register_button);
-        forgotPasswordLink = findViewById(R.id.forgot_password_link);
+        Button loginButton = findViewById(R.id.login);
+        Button registerButton = findViewById(R.id.register_button);
+        TextView forgotPasswordLink = findViewById(R.id.forgot_password_link);
 
         // Underline the forgot password link
         forgotPasswordLink.setPaintFlags(forgotPasswordLink.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
