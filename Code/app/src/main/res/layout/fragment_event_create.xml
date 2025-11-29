@@ -1,77 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
     <LinearLayout
-        android:padding="16dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        >
-
-
-    <!-- Club selector -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="8dp">
-
-            <Spinner
-                android:id="@+id/clubSpinner"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/btn_create_club"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Create Club"
-                android:backgroundTint="#2196F3"
-                android:layout_marginStart="8dp"/>
-        </LinearLayout>
+        android:layout_height="wrap_content">
 
         <EditText
             android:id="@+id/eventName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Event title"
-            android:inputType="textCapWords" />
+            android:hint="Event name" />
 
         <EditText
             android:id="@+id/eventDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Date"
-            android:focusable="false"
-            android:clickable="true"
-            android:layout_marginTop="12dp" />
+            android:hint="Date" />
 
         <EditText
             android:id="@+id/eventTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Time"
-            android:focusable="false"
-            android:clickable="true"
-            android:layout_marginTop="12dp" />
+            android:hint="Time" />
 
         <EditText
             android:id="@+id/eventLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Location"
-            android:layout_marginTop="12dp" />
+            android:hint="Location" />
 
+        <!-- Spinner showing clubs -->
+        <Spinner
+            android:id="@+id/clubSpinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" />
+
+        <!-- Create Club button -->
+        <Button
+            android:id="@+id/btn_create_club"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Create Club"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#2196F3" />
+
+        <!-- Save button -->
         <Button
             android:id="@+id/saveButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="#2196F3"
-            android:text="Save" />
-
+            android:text="Save"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#2196F3" />
     </LinearLayout>
 </ScrollView>

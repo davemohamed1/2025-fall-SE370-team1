@@ -85,4 +85,5 @@ public class MainActivity extends AppCompatActivity {
         btnSignOut.setVisibility(isHome ? View.VISIBLE : View.GONE);
         // btn_create and btn_browse remain visible/active always
     }
+
 }
