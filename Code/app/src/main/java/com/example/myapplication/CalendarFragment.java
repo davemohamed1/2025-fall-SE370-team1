@@ -1,12 +1,13 @@
 package com.example.myapplication;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
@@ -55,23 +56,31 @@ public class CalendarFragment extends Fragment {
             if (item == null) return;
             String key = item.toString(); // yyyy-MM-dd
 
-            List<Event> found = EventRepository.getAllEventsForDate(key);
-
-            final List<Event> events;
-            if (found != null && !found.isEmpty()) {
-                events = found;
+            List<Event> events = new ArrayList<>();
+            if (UserSession.isStudent()) {
+                // students only see their saved app events
+                List<Event> saved = MyCalendarRepository.getMyEvents(requireContext());
+                for (Event e : saved) if (key.equals(e.getDate())) events.add(e);
             } else {
-                events = new ArrayList<>();
-                List<Event> all = EventRepository.getAllEvents();
-                for (Event e : all) {
-                    if (key.equals(e.getDate())) events.add(e);
+                // advisors/organizers: show repository events (plus saved ones without dupes)
+                List<Event> repo = EventRepository.getAllEventsForDate(key);
+                events.addAll(repo);
+                // also include saved events not already present
+                List<Event> saved = MyCalendarRepository.getMyEvents(requireContext());
+                for (Event s : saved) {
+                    if (!key.equals(s.getDate())) continue;
+                    boolean found = false;
+                    for (Event r : events) {
+                        if (equalsEventLocal(r, s)) { found = true; break; }
+                    }
+                    if (!found) events.add(s);
                 }
             }
 
             if (events.isEmpty()) {
                 new AlertDialog.Builder(requireContext())
                         .setTitle(key)
-                        .setMessage("No events")
+                        .setMessage("No events for this day.")
                         .setPositiveButton("OK", null)
                         .show();
                 return;
@@ -88,14 +97,28 @@ public class CalendarFragment extends Fragment {
                     .setTitle(key)
                     .setItems(items, (dialog, which) -> {
                         Event chosen = events.get(which);
-                        List<Event> all = EventRepository.getAllEvents();
-                        int index = all.indexOf(chosen);
-                        if (index >= 0) {
-                            EventCreateFragment frag = EventCreateFragment.newInstance(index);
-                            getParentFragmentManager().beginTransaction()
-                                    .replace(R.id.fragment_container, frag)
-                                    .addToBackStack(null)
-                                    .commit();
+                        String details = (chosen.getClubName() != null ? chosen.getClubName() + "\n" : "") +
+                                chosen.getName() + "\n" + chosen.getDate() + " " + chosen.getTime() + "\n" + chosen.getLocation();
+
+                        if (UserSession.isStudent()) {
+                            // allow student to remove from their app calendar
+                            new AlertDialog.Builder(requireContext())
+                                    .setTitle("Saved Event")
+                                    .setMessage(details)
+                                    .setPositiveButton("Remove from App Calendar", (d, w) -> {
+                                        MyCalendarRepository.replaceEvent(requireContext(), chosen, null);
+                                        Toast.makeText(requireContext(), "Removed from app calendar.", Toast.LENGTH_SHORT).show();
+                                        refreshCalendar();
+                                    })
+                                    .setNegativeButton("Close", null)
+                                    .show();
+                        } else {
+                            // advisors: read-only view
+                            new AlertDialog.Builder(requireContext())
+                                    .setTitle("Event")
+                                    .setMessage(details)
+                                    .setPositiveButton("Close", null)
+                                    .show();
                         }
                     })
                     .setNegativeButton("Close", null)
@@ -108,16 +131,50 @@ public class CalendarFragment extends Fragment {
 
     private void refreshCalendar() {
         Map<String, List<Event>> eventsMap = new HashMap<>();
-        List<Event> all = EventRepository.getAllEvents();
-        for (Event e : all) {
-            String dateStr = e.getDate();
-            if (dateStr == null || dateStr.isEmpty()) continue;
-            List<Event> list = eventsMap.get(dateStr);
-            if (list == null) {
-                list = new ArrayList<>();
-                eventsMap.put(dateStr, list);
+
+        if (UserSession.isStudent()) {
+            // only events the student saved in the app calendar
+            List<Event> saved = MyCalendarRepository.getMyEvents(requireContext());
+            for (Event e : saved) {
+                String dateStr = e.getDate();
+                if (dateStr == null || dateStr.isEmpty()) continue;
+                List<Event> list = eventsMap.get(dateStr);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    eventsMap.put(dateStr, list);
+                }
+                list.add(e);
             }
-            list.add(e);
+        } else {
+            // advisors/organizers: show repository events and include saved events without duplicates
+            List<Event> repoAll = EventRepository.getAllEvents();
+            for (Event e : repoAll) {
+                String dateStr = e.getDate();
+                if (dateStr == null || dateStr.isEmpty()) continue;
+                List<Event> list = eventsMap.get(dateStr);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    eventsMap.put(dateStr, list);
+                }
+                list.add(e);
+            }
+            List<Event> saved = MyCalendarRepository.getMyEvents(requireContext());
+            for (Event s : saved) {
+                String dateStr = s.getDate();
+                if (dateStr == null || dateStr.isEmpty()) continue;
+                List<Event> list = eventsMap.get(dateStr);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    eventsMap.put(dateStr, list);
+                    list.add(s);
+                } else {
+                    boolean found = false;
+                    for (Event r : list) {
+                        if (equalsEventLocal(r, s)) { found = true; break; }
+                    }
+                    if (!found) list.add(s);
+                }
+            }
         }
 
         updateTitle();
@@ -128,5 +185,20 @@ public class CalendarFragment extends Fragment {
     private void updateTitle() {
         String title = new SimpleDateFormat("MMMM yyyy", Locale.US).format(monthCalendar.getTime());
         monthTitle.setText(title);
+    }
+
+    // local equality matching name/date/time/location (mirrors MyCalendarRepository.equalsEvent)
+    private boolean equalsEventLocal(Event a, Event b) {
+        if (a == null || b == null) return false;
+        return safeEq(a.getName(), b.getName())
+                && safeEq(a.getDate(), b.getDate())
+                && safeEq(a.getTime(), b.getTime())
+                && safeEq(a.getLocation(), b.getLocation());
+    }
+
+    private boolean safeEq(String x, String y) {
+        if (x == null && y == null) return true;
+        if (x == null || y == null) return false;
+        return x.equals(y);
     }
 }

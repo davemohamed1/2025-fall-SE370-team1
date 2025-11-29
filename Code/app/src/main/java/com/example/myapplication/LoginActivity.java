@@ -19,6 +19,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Locale;
+
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
@@ -147,6 +149,14 @@ public class LoginActivity extends AppCompatActivity {
 
     private void updateUI(FirebaseUser user) {
         if (user != null) {
+            String email = user.getEmail();
+            boolean isAdvisor = false;
+            if (email != null) {
+                isAdvisor = email.toLowerCase(Locale.US).endsWith("@advisor.com");
+            }
+            // advisor -> setStudent(false), otherwise student -> setStudent(true)
+            UserSession.setStudent(!isAdvisor);
+
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
             finish();

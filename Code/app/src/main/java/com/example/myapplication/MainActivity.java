@@ -1,3 +1,4 @@
+// language: java
 package com.example.myapplication;
 
 import android.content.Intent;
@@ -6,84 +7,67 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Button btnHome;
-    private Button btnSignOut;
-    private Button btnCreate;
-    private Button btnBrowse;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Toolbar tb = findViewById(R.id.toolbar);
+        setSupportActionBar(tb);
 
-        // find bottom buttons
-        btnHome = findViewById(R.id.btn_home);
-        btnSignOut = findViewById(R.id.btn_sign_out);
-        btnCreate = findViewById(R.id.btn_create);
-        btnBrowse = findViewById(R.id.btn_browse);
+        Button btnHome = findViewById(R.id.btn_home);
+        Button btnSignOut = findViewById(R.id.btn_sign_out);
+        Button btnCreate = findViewById(R.id.btn_create);
+        Button btnBrowse = findViewById(R.id.btn_browse);
 
-        // initial fragment = HomeFragment (root)
-        if (savedInstanceState == null) {
+        // Hide create button for students
+        if (UserSession.isStudent()) {
+            btnCreate.setVisibility(View.GONE);
+        } else {
+            btnCreate.setVisibility(View.VISIBLE);
+        }
+
+        // Default: show Browse (calendar) fragment
+        if (getSupportFragmentManager().findFragmentById(R.id.fragment_container) == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
+                    .replace(R.id.fragment_container, new BrowseFragment())
                     .commit();
         }
 
-        // button listeners
-        btnHome.setOnClickListener(v -> {
-            // navigate to home and clear backstack so home is root
-            getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new HomeFragment())
-                    .commit();
-            updateBottomButtons();
+        btnBrowse.setOnClickListener(v ->
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new BrowseFragment())
+                        .addToBackStack(null)
+                        .commit()
+        );
+
+        btnCreate.setOnClickListener(v -> {
+            // open event create if organizer, otherwise do nothing
+            if (!UserSession.isStudent()) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new EventCreateFragment())
+                        .addToBackStack(null)
+                        .commit();
+            }
         });
+
+        btnHome.setOnClickListener(v ->
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, new BrowseFragment())
+                        .addToBackStack(null)
+                        .commit()
+        );
 
         btnSignOut.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
+            Intent it = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(it);
+            finish();
         });
-
-        btnCreate.setOnClickListener(v -> {
-            // open event create (no editing index)
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new EventCreateFragment())
-                    .addToBackStack(null)
-                    .commit();
-            updateBottomButtons();
-        });
-
-        btnBrowse.setOnClickListener(v -> {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, new BrowseFragment())
-                    .addToBackStack(null)
-                    .commit();
-            updateBottomButtons();
-        });
-
-        // listen for backstack changes (e.g., user pressed back)
-        getSupportFragmentManager().addOnBackStackChangedListener(this::updateBottomButtons);
-
-        // ensure buttons reflect the initial fragment
-        updateBottomButtons();
     }
-
-    private void updateBottomButtons() {
-        Fragment current = getSupportFragmentManager().findFragmentById(R.id.fragment_container);
-        boolean isHome = current instanceof HomeFragment;
-        // when on HomeFragment, hide the home button and show sign out
-        btnHome.setVisibility(isHome ? View.GONE : View.VISIBLE);
-        btnSignOut.setVisibility(isHome ? View.VISIBLE : View.GONE);
-        // btn_create and btn_browse remain visible/active always
-    }
-
 }

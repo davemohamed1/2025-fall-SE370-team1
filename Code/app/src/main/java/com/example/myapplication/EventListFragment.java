@@ -1,11 +1,14 @@
 package com.example.myapplication;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import java.text.ParseException;
@@ -70,17 +73,38 @@ public class EventListFragment extends Fragment {
         });
 
         for (int i = 0; i < events.size(); i++) {
-            final int index = i;
             Event e = events.get(i);
             String clubLine = e.getClubName() != null ? e.getClubName() + "\n" : "";
             Button item = new Button(requireContext());
             item.setText(clubLine + e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation());
             item.setAllCaps(false);
-            item.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    EventCreateFragment frag = EventCreateFragment.newInstance(index);
-                    getParentFragmentManager().beginTransaction()
+            item.setOnClickListener(v -> {
+                if (UserSession.isStudent()) {
+                    // show read-only dialog with Add to App Calendar only
+                    String details = (e.getClubName() != null ? e.getClubName() + "\n" : "") +
+                            e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation();
+                    new AlertDialog.Builder(requireContext())
+                            .setTitle("Event")
+                            .setMessage(details)
+                            .setPositiveButton("Add to App Calendar", (d, w) -> {
+                                boolean added = MyCalendarRepository.addEvent(requireContext(), e);
+                                Toast.makeText(requireContext(),
+                                        added ? "Added to app calendar." : "Already in app calendar.",
+                                        Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton("Close", null)
+                            .show();
+                } else {
+                    // organizer/advisor: open editor for the actual repository index
+                    List<Event> repoEvents = EventRepository.getAllEvents();
+                    int repoIndex = repoEvents.indexOf(e);
+                    EventCreateFragment frag = (repoIndex >= 0)
+                            ? EventCreateFragment.newInstance(repoIndex)
+                            : EventCreateFragment.newInstance(-1);
+
+                    // Use the activity's FragmentManager so the replacement target (R.id.fragment_container)
+                    // is found even when this fragment is hosted inside a child container like sub_container.
+                    requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, frag)
                             .addToBackStack(null)
                             .commit();

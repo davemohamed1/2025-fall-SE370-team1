@@ -1,4 +1,4 @@
-// language: java
+// File: `app/src/main/java/com/example/myapplication/EventCreateFragment.java`
 package com.example.myapplication;
 
 import android.app.DatePickerDialog;
@@ -33,7 +33,6 @@ public class EventCreateFragment extends Fragment {
     private static final String ARG_EVENT_INDEX = "event_index";
     private int eventIndex = -1;
     private final List<Club> clubs = new ArrayList<>();
-    // store canonical date key used by Calendar (yyyy-MM-dd)
     private String dateKey = null;
 
     public static EventCreateFragment newInstance(int index) {
@@ -56,6 +55,13 @@ public class EventCreateFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event_create, container, false);
 
+        // Prevent students from opening the editor
+        if (UserSession.isStudent()) {
+            Toast.makeText(requireContext(), "Students cannot create or edit events.", Toast.LENGTH_SHORT).show();
+            if (getParentFragmentManager() != null) getParentFragmentManager().popBackStack();
+            return view;
+        }
+
         nameInput = view.findViewById(R.id.eventName);
         dateInput = view.findViewById(R.id.eventDate);
         timeInput = view.findViewById(R.id.eventTime);
@@ -66,27 +72,53 @@ public class EventCreateFragment extends Fragment {
         // Load clubs into spinner
         loadClubs();
 
-        // If no clubs exist -> force user to create one before making an event
         if (clubs.isEmpty()) {
             saveButton.setEnabled(false);
             new AlertDialog.Builder(requireContext())
                     .setTitle("No clubs")
-                    .setMessage("You must create a club before creating an event.")
-                    .setPositiveButton("Create Club", (d, which) -> {
-                        ClubCreateFragment frag = new ClubCreateFragment();
-                        getParentFragmentManager().beginTransaction()
-                                .replace(R.id.fragment_container, frag)
-                                .addToBackStack(null)
-                                .commit();
-                    })
-                    .setNegativeButton("Cancel", (d, which) -> {
-                        // go back to previous screen
-                        if (getParentFragmentManager() != null) getParentFragmentManager().popBackStack();
-                    })
-                    .setCancelable(false)
+                    .setMessage("Please create a club before creating an event.")
+                    .setPositiveButton("OK", null)
                     .show();
         } else {
             saveButton.setEnabled(true);
+        }
+
+        // If editing an existing event, prefill fields
+        if (eventIndex >= 0) {
+            Event existing = EventRepository.getEvent(eventIndex);
+            if (existing != null) {
+                nameInput.setText(existing.getName());
+                // convert yyyy-MM-dd to MM/dd/yyyy for display
+                try {
+                    String existingDate = existing.getDate();
+                    if (existingDate != null && !existingDate.isEmpty()) {
+                        SimpleDateFormat in = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                        Date d = in.parse(existingDate);
+                        if (d != null) {
+                            SimpleDateFormat out = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+                            dateInput.setText(out.format(d));
+                            dateKey = existingDate;
+                        }
+                    }
+                } catch (Exception ignore) { /* leave date empty on parse failure */ }
+
+                timeInput.setText(existing.getTime());
+                locationInput.setText(existing.getLocation());
+
+                // select club in spinner if available
+                String clubId = existing.getClubId();
+                String clubName = existing.getClubName();
+                int sel = -1;
+                for (int i = 0; i < clubs.size(); i++) {
+                    Club c = clubs.get(i);
+                    if ((clubId != null && clubId.equals(c.getId()))
+                            || (clubName != null && clubName.equals(c.getName()))) {
+                        sel = i;
+                        break;
+                    }
+                }
+                if (sel >= 0) clubSpinner.setSelection(sel);
+            }
         }
 
         Button createClubButton = view.findViewById(R.id.btn_create_club);
@@ -98,7 +130,6 @@ public class EventCreateFragment extends Fragment {
                     .commit();
         });
 
-        // restore date/time pickers
         dateInput.setFocusable(false);
         dateInput.setClickable(true);
         dateInput.setOnClickListener(v -> showDatePicker());
@@ -118,7 +149,7 @@ public class EventCreateFragment extends Fragment {
         // Refresh clubs in case a new club was created
         loadClubs();
         // enable save if clubs now exist
-        saveButton.setEnabled(!clubs.isEmpty());
+        if (saveButton != null) saveButton.setEnabled(!clubs.isEmpty());
     }
 
     private void loadClubs() {
@@ -144,10 +175,8 @@ public class EventCreateFragment extends Fragment {
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 (DatePicker view, int y, int m, int d) -> {
-                    // Display to user as MM/dd/yyyy
                     String display = String.format(Locale.US, "%02d/%02d/%04d", m + 1, d, y);
                     dateInput.setText(display);
-                    // Store canonical key as yyyy-MM-dd for calendar matching
                     dateKey = String.format(Locale.US, "%04d-%02d-%02d", y, m + 1, d);
                 },
                 year, month, day);
@@ -181,10 +210,8 @@ public class EventCreateFragment extends Fragment {
             return;
         }
 
-        // Ensure we have a canonical date key (yyyy-MM-dd)
         String useDateKey = dateKey;
         if (useDateKey == null || useDateKey.isEmpty()) {
-            // try to parse MM/dd/yyyy into yyyy-MM-dd
             try {
                 SimpleDateFormat in = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
                 Date parsed = in.parse(dateDisplay);
@@ -196,7 +223,6 @@ public class EventCreateFragment extends Fragment {
             }
         }
 
-        // Must have a club selected (enforced earlier) - still guard here
         if (clubs.isEmpty()) {
             Toast.makeText(getActivity(), "Please create a club before creating an event.", Toast.LENGTH_SHORT).show();
             return;
@@ -211,13 +237,23 @@ public class EventCreateFragment extends Fragment {
             clubName = selectedClub.getName();
         }
 
-        // store the canonical dateKey in Event so calendar can find it
         Event event = new Event(name, time, location, useDateKey, clubId, clubName);
 
-        // Add to repository (in-memory + persist)
-        EventRepository.addEvent(event);
+        if (eventIndex >= 0) {
+            // update existing
+            Event old = EventRepository.getEvent(eventIndex);
+            EventRepository.updateEvent(eventIndex, event);
+            // update app calendar saved copy if present
+            MyCalendarRepository.replaceEvent(requireContext(), old, event);
+            Toast.makeText(getActivity(), "Event Updated!", Toast.LENGTH_SHORT).show();
+        } else {
+            // new event
+            EventRepository.addEvent(event);
+            // Ensure advisors see events on their app calendar immediately.
+            MyCalendarRepository.addEvent(requireContext(), event);
+            Toast.makeText(getActivity(), "Event Created!", Toast.LENGTH_SHORT).show();
+        }
 
-        Toast.makeText(getActivity(), "Event Created!", Toast.LENGTH_SHORT).show();
         if (getParentFragmentManager() != null) {
             getParentFragmentManager().popBackStack();
         }
