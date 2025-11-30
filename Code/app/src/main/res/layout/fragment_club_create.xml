@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:padding="16dp"
     android:layout_width="match_parent"
@@ -8,7 +9,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Create Club"
+        android:text="@string/create_club"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="12dp" />
@@ -17,7 +18,8 @@
         android:id="@+id/clubNameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Club name"
+        android:autofillHints=""
+        android:hint="@string/club_name"
         android:inputType="textCapWords"
         android:ems="10" />
 
@@ -25,12 +27,14 @@
         android:id="@+id/clubDescInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Short description"
+        android:autofillHints=""
+        android:hint="@string/short_description"
         android:inputType="textMultiLine"
         android:minLines="3"
         android:layout_marginTop="12dp" />
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -38,18 +42,21 @@
 
         <Button
             android:id="@+id/btnSaveClub"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Save"
+            android:text="@string/save"
             android:backgroundTint="#2196F3" />
 
         <Button
             android:id="@+id/btnCancelClub"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:text="Cancel"
-            android:layout_marginStart="8dp" />
+            android:text="@string/cancel"
+            android:layout_marginStart="8dp"
+            tools:ignore="ButtonOrder" />
     </LinearLayout>
 </LinearLayout>
