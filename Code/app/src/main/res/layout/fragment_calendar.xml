@@ -14,9 +14,14 @@
         <Button
             android:id="@+id/btnPrev"
             android:layout_width="48dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_chevron_left"
             android:backgroundTint="#2196F3"
+            android:padding="8dp"
+            android:contentDescription="Previous month"
+            android:scaleType="centerInside"
             android:text="&lt;" />
+
 
         <TextView
             android:id="@+id/monthTitle"
@@ -31,7 +36,11 @@
         <Button
             android:id="@+id/btnNext"
             android:layout_width="48dp"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_chevron_right"
+            android:padding="8dp"
+            android:contentDescription="Next month"
+            android:scaleType="centerInside"
             android:backgroundTint="#2196F3"
             android:text="&gt;" />
     </LinearLayout>
