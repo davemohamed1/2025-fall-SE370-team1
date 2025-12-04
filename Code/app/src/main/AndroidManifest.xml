@@ -11,6 +11,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
+        <receiver android:name=".NotificationReceiver" />
         <activity android:name=".MainActivity"/>
         <activity android:name=".LoginActivity" android:exported="true">
             <intent-filter>

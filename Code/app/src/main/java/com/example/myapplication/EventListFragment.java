@@ -80,7 +80,7 @@ public class EventListFragment extends Fragment {
             item.setAllCaps(false);
             item.setOnClickListener(v -> {
                 if (UserSession.isStudent()) {
-                    // show read-only dialog with Add to App Calendar only
+                    // student: show dialog with Add to App Calendar (then ask notification preference)
                     String details = (e.getClubName() != null ? e.getClubName() + "\n" : "") +
                             e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation();
                     new AlertDialog.Builder(requireContext())
@@ -91,6 +91,7 @@ public class EventListFragment extends Fragment {
                                 Toast.makeText(requireContext(),
                                         added ? "Added to app calendar." : "Already in app calendar.",
                                         Toast.LENGTH_SHORT).show();
+                                if (added) promptNotificationChoice(e);
                             })
                             .setNegativeButton("Close", null)
                             .show();
@@ -102,8 +103,6 @@ public class EventListFragment extends Fragment {
                             ? EventCreateFragment.newInstance(repoIndex)
                             : EventCreateFragment.newInstance(-1);
 
-                    // Use the activity's FragmentManager so the replacement target (R.id.fragment_container)
-                    // is found even when this fragment is hosted inside a child container like sub_container.
                     requireActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.fragment_container, frag)
                             .addToBackStack(null)
@@ -112,5 +111,32 @@ public class EventListFragment extends Fragment {
             });
             container.addView(item);
         }
+    }
+
+    private void promptNotificationChoice(Event e) {
+        CharSequence[] options = new CharSequence[] {
+                "No notification",
+                "24 hours before",
+                "1 hour before",
+                "10 minutes before"
+        };
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Notify me")
+                .setItems(options, (dialog, which) -> {
+                    int minutes = 0;
+                    switch (which) {
+                        case 1: minutes = 24 * 60; break;
+                        case 2: minutes = 60; break;
+                        case 3: minutes = 10; break;
+                        default: minutes = 0; break;
+                    }
+                    if (minutes > 0) {
+                        boolean scheduled = NotificationScheduler.scheduleNotification(requireContext(), e, minutes);
+                        Toast.makeText(requireContext(),
+                                scheduled ? "Notification scheduled." : "Could not schedule notification (time may have passed).",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .show();
     }
 }

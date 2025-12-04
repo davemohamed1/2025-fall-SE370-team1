@@ -1,4 +1,3 @@
-// File: `app/src/main/java/com/example/myapplication/ClubListFragment.java`
 package com.example.myapplication;
 
 import android.os.Bundle;
@@ -51,7 +50,6 @@ public class ClubListFragment extends Fragment {
         List<Event> all = EventRepository.getAllEvents();
         final List<Event> clubEvents = new ArrayList<>();
         for (Event e : all) {
-            // match by clubId or clubName
             if ((club.getId() != null && club.getId().equals(e.getClubId()))
                     || (club.getName() != null && club.getName().equals(e.getClubName()))) {
                 clubEvents.add(e);
@@ -77,8 +75,8 @@ public class ClubListFragment extends Fragment {
                     if (UserSession.isStudent()) {
                         boolean added = MyCalendarRepository.addEvent(requireContext(), chosen);
                         Toast.makeText(requireContext(), added ? "Added to app calendar." : "Already in app calendar.", Toast.LENGTH_SHORT).show();
+                        if (added) promptNotificationChoice(chosen);
                     } else {
-                        // organizer: open editor
                         List<Event> allEvents = EventRepository.getAllEvents();
                         int index = allEvents.indexOf(chosen);
                         if (index >= 0) {
@@ -91,6 +89,33 @@ public class ClubListFragment extends Fragment {
                     }
                 })
                 .setNegativeButton("Close", null)
+                .show();
+    }
+
+    private void promptNotificationChoice(Event e) {
+        CharSequence[] options = new CharSequence[] {
+                "No notification",
+                "24 hours before",
+                "1 hour before",
+                "10 minutes before"
+        };
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Notify me")
+                .setItems(options, (dialog, which) -> {
+                    int minutes = 0;
+                    switch (which) {
+                        case 1: minutes = 24 * 60; break;
+                        case 2: minutes = 60; break;
+                        case 3: minutes = 10; break;
+                        default: minutes = 0; break;
+                    }
+                    if (minutes > 0) {
+                        boolean scheduled = NotificationScheduler.scheduleNotification(requireContext(), e, minutes);
+                        Toast.makeText(requireContext(),
+                                scheduled ? "Notification scheduled." : "Could not schedule notification (time may have passed).",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                })
                 .show();
     }
 }
