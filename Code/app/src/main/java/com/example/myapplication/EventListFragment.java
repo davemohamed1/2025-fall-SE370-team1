@@ -1,3 +1,5 @@
+// language: java
+// File: `app/src/main/java/com/example/myapplication/EventListFragment.java`
 package com.example.myapplication;
 
 import android.os.Bundle;
@@ -76,14 +78,20 @@ public class EventListFragment extends Fragment {
             Event e = events.get(i);
             String clubLine = e.getClubName() != null ? e.getClubName() + "\n" : "";
             Button item = new Button(requireContext());
-            item.setText(clubLine + e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation());
+            String label = clubLine + e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation();
+            List<String> tags = e.getHashtags();
+            if (tags != null && !tags.isEmpty()) label += "\nTags: " + joinTags(tags);
+            item.setText(label);
             item.setAllCaps(false);
             item.setOnClickListener(v -> {
                 if (UserSession.isStudent()) {
-                    // student: show dialog with Add to App Calendar (then ask notification preference)
+                    // student: show dialog with Add to App Calendar (then ask notification preference) and allow tag browsing
                     String details = (e.getClubName() != null ? e.getClubName() + "\n" : "") +
                             e.getName() + "\n" + e.getDate() + " " + e.getTime() + "\n" + e.getLocation();
-                    new AlertDialog.Builder(requireContext())
+                    List<String> etags = e.getHashtags();
+                    if (etags != null && !etags.isEmpty()) details += "\nTags: " + joinTags(etags);
+
+                    AlertDialog.Builder b = new AlertDialog.Builder(requireContext())
                             .setTitle("Event")
                             .setMessage(details)
                             .setPositiveButton("Add to App Calendar", (d, w) -> {
@@ -93,8 +101,12 @@ public class EventListFragment extends Fragment {
                                         Toast.LENGTH_SHORT).show();
                                 if (added) promptNotificationChoice(e);
                             })
-                            .setNegativeButton("Close", null)
-                            .show();
+                            .setNegativeButton("Close", null);
+
+                    if (etags != null && !etags.isEmpty()) {
+                        b.setNeutralButton("View by Tag", (d, w) -> showTagChoices(etags));
+                    }
+                    b.show();
                 } else {
                     // organizer/advisor: open editor for the actual repository index
                     List<Event> repoEvents = EventRepository.getAllEvents();
@@ -111,6 +123,43 @@ public class EventListFragment extends Fragment {
             });
             container.addView(item);
         }
+    }
+
+    private void showTagChoices(List<String> tags) {
+        CharSequence[] items = new CharSequence[tags.size()];
+        for (int i = 0; i < tags.size(); i++) items[i] = tags.get(i);
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Select Tag")
+                .setItems(items, (dialog, which) -> showMatches(tags.get(which)))
+                .setNegativeButton("Close", null)
+                .show();
+    }
+
+    private void showMatches(String tag) {
+        List<Club> matchingClubs = new ArrayList<>();
+        for (Club c : ClubRepository.getAllClubs()) {
+            if (c.getHashtags() != null && c.getHashtags().contains(tag)) matchingClubs.add(c);
+        }
+        List<Event> matchingEvents = new ArrayList<>();
+        for (Event e : EventRepository.getAllEvents()) {
+            if (e.getHashtags() != null && e.getHashtags().contains(tag)) matchingEvents.add(e);
+        }
+
+        List<CharSequence> lines = new ArrayList<>();
+        for (Club c : matchingClubs) lines.add("[Club] " + (c.getName() != null ? c.getName() : "(Unnamed)"));
+        for (Event e : matchingEvents) lines.add("[Event] " + e.getName() + " — " + e.getDate() + " " + e.getTime());
+
+        if (lines.isEmpty()) {
+            Toast.makeText(requireContext(), "No clubs or events with tag " + tag, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        CharSequence[] arr = lines.toArray(new CharSequence[0]);
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Matches: " + tag)
+                .setItems(arr, null)
+                .setNegativeButton("Close", null)
+                .show();
     }
 
     private void promptNotificationChoice(Event e) {
@@ -138,5 +187,14 @@ public class EventListFragment extends Fragment {
                     }
                 })
                 .show();
+    }
+
+    private String joinTags(List<String> tags) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < tags.size(); i++) {
+            if (i > 0) sb.append(", ");
+            sb.append(tags.get(i));
+        }
+        return sb.toString();
     }
 }

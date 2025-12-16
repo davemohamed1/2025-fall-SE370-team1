@@ -1,4 +1,5 @@
 // language: java
+// File: `app/src/main/java/com/example/myapplication/MyCalendarRepository.java`
 package com.example.myapplication;
 
 import android.content.Context;
@@ -16,6 +17,8 @@ import java.util.Set;
 /**
  * Per-user in-app calendar storage. Events are saved in SharedPreferences keyed by the
  * current Firebase user's UID so students won't see advisor-saved events unless they add them.
+ *
+ * Now includes hashtags serialized as a final pipe-separated field.
  */
 public class MyCalendarRepository {
     private static final String PREFS = "my_calendar_prefs";
@@ -50,7 +53,17 @@ public class MyCalendarRepository {
                 String date = emptyToNull(parts, 3);
                 String clubId = emptyToNull(parts, 4);
                 String clubName = emptyToNull(parts, 5);
+                String tagStr = emptyToNull(parts, 6); // new
                 Event e = new Event(name, time, location, date, clubId, clubName);
+                // parse hashtags (pipe-separated)
+                if (tagStr != null && !tagStr.isEmpty()) {
+                    String[] toks = tagStr.split("\\|");
+                    List<String> tags = new ArrayList<>();
+                    for (String t : toks) {
+                        if (t != null && !t.isEmpty()) tags.add(t);
+                    }
+                    e.setHashtags(tags);
+                }
                 myEvents.add(e);
             } catch (Exception ignore) {
                 // skip malformed entry
@@ -70,7 +83,19 @@ public class MyCalendarRepository {
                 .append(nullToEmpty(e.getLocation())).append(SEP)
                 .append(nullToEmpty(e.getDate())).append(SEP)
                 .append(nullToEmpty(e.getClubId())).append(SEP)
-                .append(nullToEmpty(e.getClubName()));
+                .append(nullToEmpty(e.getClubName())).append(SEP);
+        // hashtags as pipe-separated
+        List<String> tags = e.getHashtags();
+        if (tags != null && !tags.isEmpty()) {
+            StringBuilder tb = new StringBuilder();
+            for (int i = 0; i < tags.size(); i++) {
+                if (i > 0) tb.append('|');
+                tb.append(nullToEmpty(tags.get(i)));
+            }
+            sb.append(tb.toString());
+        } else {
+            sb.append("");
+        }
         try {
             return Base64.encodeToString(sb.toString().getBytes("UTF-8"), Base64.NO_WRAP);
         } catch (Exception ex) {

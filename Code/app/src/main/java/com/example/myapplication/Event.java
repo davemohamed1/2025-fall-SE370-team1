@@ -1,4 +1,9 @@
+// language: java
+// File: `app/src/main/java/com/example/myapplication/Event.java`
 package com.example.myapplication;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Event {
     private String name;
@@ -7,6 +12,7 @@ public class Event {
     private String date;
     private String clubId;
     private String clubName;
+    private List<String> hashtags; // new
 
     // Firestore requires a public no-arg constructor
     public Event() {}
@@ -18,6 +24,7 @@ public class Event {
         this.date = date;
         this.clubId = clubId;
         this.clubName = clubName;
+        this.hashtags = new ArrayList<>();
     }
 
     // convenience constructor for backward compatibility (will have empty club info)
@@ -37,4 +44,14 @@ public class Event {
     public void setClubId(String clubId) { this.clubId = clubId; }
     public String getClubName() { return clubName; }
     public void setClubName(String clubName) { this.clubName = clubName; }
+
+    // hashtags
+    public List<String> getHashtags() {
+        if (hashtags == null) hashtags = new ArrayList<>();
+        return hashtags;
+    }
+
+    public void setHashtags(List<String> hashtags) {
+        this.hashtags = hashtags;
+    }
 }

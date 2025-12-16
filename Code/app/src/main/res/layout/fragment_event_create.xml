@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:fillViewport="true">
 
     <LinearLayout
         android:orientation="vertical"
@@ -39,6 +41,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp" />
+
+        <!-- Hashtags toggle button (collapsed by default) -->
+        <Button
+            android:id="@+id/btn_toggle_hashtags"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Show Hashtags"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#2196F3" />
+
+        <!-- Hashtags label + container for advisor-only hashtags (filled dynamically) -->
+        <TextView
+            android:id="@+id/hashtagsLabel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hashtags"
+            android:textStyle="bold"
+            android:layout_marginTop="12dp"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/hashtagsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:visibility="gone" >
+            <!-- CheckBoxes will be added here dynamically by EventCreateFragment -->
+        </LinearLayout>
 
         <!-- Create Club button -->
         <Button
